@@ -13,10 +13,16 @@ dotnet run
 
 ```sh
 # start a new counter "foo"
-curl -X POST --data '' http://localhost:5000/api/counters/foo
+curl -X POST --data '' "http://localhost:5000/api/counters/foo"
 
 # get value for counter "foo"
-curl -X GET http://localhost:5000/api/counters/foo
+curl -X GET "http://localhost:5000/api/counters/foo"
+
+# increment it by 3
+curl -X PATCH "http://localhost:5000/api/counters/foo?count=3"
+
+# get value for counter "foo" again
+curl -X GET "http://localhost:5000/api/counters/foo"
 ```
 
 [Event Sourcing]: https://docs.microsoft.com/en-us/azure/architecture/patterns/event-sourcing

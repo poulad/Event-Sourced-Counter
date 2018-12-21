@@ -3,7 +3,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace EventSourcedCounter.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
     public class Result
     {
         public bool Ok { get; set; }

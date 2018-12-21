@@ -11,6 +11,8 @@ namespace EventSourcedCounter.Models
 
         public long Value { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
         public DateTime LastModifiedAt { get; set; }
     }
 }

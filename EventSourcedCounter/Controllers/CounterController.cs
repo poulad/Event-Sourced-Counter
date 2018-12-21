@@ -1,8 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Text;
+using System.Threading.Tasks;
 using EventSourcedCounter.Events;
 using EventSourcedCounter.Models;
 using EventSourcedCounter.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EventSourcedCounter.Controllers
 {
@@ -32,25 +36,45 @@ namespace EventSourcedCounter.Controllers
             var counter = new Counter {Name = name};
             foreach (var ev in events)
             {
-                if (ev.EventType == EventTypes.CounterCreated)
+                if (ev.EventType == EventTypes.CounterIncremented)
                 {
-                    counter.LastModifiedAt = ev.Created;
+                    string json = Encoding.UTF8.GetString(ev.Data);
+                    var jObj = JsonConvert.DeserializeObject<JObject>(json);
+
+                    counter.Value += jObj.Value<int>("count");
                 }
+                else if (ev.EventType == EventTypes.CounterCreated)
+                {
+                    counter.CreatedAt = ev.Created;
+                }
+
+                counter.LastModifiedAt = ev.Created;
             }
 
             return Json(counter);
         }
 
         [HttpPatch]
-        public async Task<IActionResult> IncrementCounter(string name)
+        public async Task<IActionResult> IncrementCounter(string name, [FromQuery] int count = 1)
         {
-            return Json(new { });
+            Result result;
+            if (0 < count)
+            {
+                await _eventsRepo.AppendCounterEventAsync(name, new CounterIncrementedEvent(count));
+                result = new Result(true);
+            }
+            else
+            {
+                result = new Result(false, "Invalid count");
+            }
+
+            return Json(result);
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteCounter(string name)
+        public Task<IActionResult> DeleteCounter(string name)
         {
-            return Json(new { });
+            throw new NotImplementedException();
         }
     }
 }
