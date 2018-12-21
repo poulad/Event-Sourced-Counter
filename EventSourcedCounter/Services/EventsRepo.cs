@@ -43,6 +43,20 @@ namespace EventSourcedCounter.Services
             }
         }
 
+        public async Task<bool> CounterExistsAsync(string counterName)
+        {
+            string streamName = $"counter:{counterName}";
+
+            using (var conn = EventStoreConnection.Create(ConnectionString))
+            {
+                await conn.ConnectAsync();
+
+                var slice = await conn
+                    .ReadStreamEventsForwardAsync(streamName, StreamPosition.Start, 1, true);
+                return slice.Events.Any();
+            }
+        }
+
         public async Task<IReadOnlyCollection<RecordedEvent>> GetAllCounterEventsAsync(string counterName)
         {
             string streamName = $"counter:{counterName}";
