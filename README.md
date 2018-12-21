@@ -1,6 +1,8 @@
 # Event Sourced Counter
 
-I'm trying to learn [Event Sourcing]
+Trying out [Event Sourcing] design
+
+## Run
 
 ```sh
 # run an instance of Event Store database
@@ -25,5 +27,13 @@ curl -X PATCH "http://localhost:5000/api/counters/foo?count=3"
 # get value for counter "foo" again
 curl -X GET "http://localhost:5000/api/counters/foo"
 ```
+
+## ToDo
+
+- [X] Event Store
+- [X] CQS
+- [ ] Read Models
+- [ ] Snapshots
+- [ ] What's Next?
 
 [Event Sourcing]: https://docs.microsoft.com/en-us/azure/architecture/patterns/event-sourcing
