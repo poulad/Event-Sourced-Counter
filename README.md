@@ -43,7 +43,7 @@ docker run -it --link esc-redis:redis --rm redis redis-cli -h redis -p 6379
 ## ToDo
 
 - [X] Event Store
-- [X] CQS
+- [X] CQRS
 - [X] Read Model
 - [ ] Snapshots
 - [ ] RabbitMQ for mutations
