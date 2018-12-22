@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ESC.Data.Redis;
@@ -8,7 +7,7 @@ using EventStore.ClientAPI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ESC.ModelAggregator.Redis
+namespace ESC.Events.Handlers
 {
     class Program
     {
@@ -21,48 +20,51 @@ namespace ESC.ModelAggregator.Redis
             using (_repo = new CounterRepo())
             using (var eventStoreClient = EventStoreConnection.Create(EventStoreConnectionString))
             {
-                await eventStoreClient.ConnectAsync();
+                await eventStoreClient.ConnectAsync()
+                    .ConfigureAwait(false);
 
-                Position startPosition = Position.Start;
-                AllEventsSlice eventsSlice;
-                do
+                string lastPosition = await _repo.GetLastEventPositionAsync()
+                    .ConfigureAwait(false);
+
+                if (lastPosition != null)
                 {
-                    eventsSlice = await eventStoreClient
-                        .ReadAllEventsForwardAsync(startPosition, 1000, false)
-                        .ConfigureAwait(false);
+                    // ToDo catch up first
+                }
 
-                    var events = eventsSlice.Events
-                        .Where(ev => ev.OriginalStreamId.StartsWith("counter:"))
-                        .Select(ev => ev.Event);
+                await eventStoreClient.SubscribeToAllAsync(false, EventAppeared)
+                    .ConfigureAwait(false);
 
-                    foreach (var recordedEvent in events)
-                    {
-                        await HandleAsync(recordedEvent)
-                            .ConfigureAwait(false);
-                    }
-
-                    startPosition = eventsSlice.NextPosition;
-                } while (!eventsSlice.IsEndOfStream);
+                Console.WriteLine("Subscription Activated.");
+                await Task.Delay(TimeSpan.FromHours(2))
+                    .ConfigureAwait(false);
+                Console.WriteLine("BYE!");
             }
         }
 
-        static async Task HandleAsync(RecordedEvent recordedEvent)
+        private static Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
         {
-            switch (recordedEvent.EventType)
+            if (!resolvedEvent.OriginalStreamId.StartsWith(StreamNames.CounterStreamPrefix))
             {
-                case Events.Types.CounterCreated:
-                    await CreateCounterAsync(recordedEvent)
-                        .ConfigureAwait(false);
+                return Task.CompletedTask;
+            }
+
+            Task task;
+            switch (resolvedEvent.Event.EventType)
+            {
+                case Types.CounterCreated:
+                    task = CreateCounterAsync(resolvedEvent.Event);
                     break;
-                case Events.Types.CounterIncremented:
-                    await IncrementCounterAsync(recordedEvent)
-                        .ConfigureAwait(false);
+                case Types.CounterIncremented:
+                    task = IncrementCounterAsync(resolvedEvent.Event);
                     break;
                 default:
-                    string json = JsonConvert.SerializeObject(recordedEvent, Formatting.Indented);
+                    string json = JsonConvert.SerializeObject(resolvedEvent, Formatting.Indented);
                     Console.WriteLine($"Invalid event found!{Environment.NewLine}{json}");
+                    task = Task.CompletedTask;
                     break;
             }
+
+            return task;
         }
 
         static async Task CreateCounterAsync(RecordedEvent recordedEvent)
@@ -73,7 +75,7 @@ namespace ESC.ModelAggregator.Redis
                 CreatedAt = recordedEvent.Created,
             };
 
-            await _repo.SetCounter(counter)
+            await _repo.SetCounterAsync(counter)
                 .ConfigureAwait(false);
         }
 
@@ -87,12 +89,12 @@ namespace ESC.ModelAggregator.Redis
 
             string counterName = recordedEvent.EventStreamId.Substring("counter:".Length);
 
-            var counter = await _repo.GetCounterByName(counterName)
+            var counter = await _repo.GetCounterByNameAsync(counterName)
                 .ConfigureAwait(false);
 
             counter.Value += count;
 
-            await _repo.SetCounter(counter)
+            await _repo.SetCounterAsync(counter)
                 .ConfigureAwait(false);
         }
     }

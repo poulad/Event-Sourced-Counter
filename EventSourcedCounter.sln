@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESC.Data.Redis", "src\ESC.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESC.Events", "src\ESC.Events\ESC.Events.csproj", "{ED9977A6-F6BF-4CF4-BA77-52F10942A66F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESC.ModelAggregator.Redis", "src\ESC.ModelAggregator.Redis\ESC.ModelAggregator.Redis.csproj", "{A7C6CE56-2EB5-4900-B348-964F3E002156}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESC.Events.Handlers", "src\ESC.Events.Handlers\ESC.Events.Handlers.csproj", "{A7C6CE56-2EB5-4900-B348-964F3E002156}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESC.Web", "src\ESC.Web\ESC.Web.csproj", "{E86EF325-E7FB-436D-A943-879F1B439718}"
 EndProject

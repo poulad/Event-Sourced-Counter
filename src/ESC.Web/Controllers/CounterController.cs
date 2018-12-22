@@ -25,7 +25,7 @@ namespace ESC.Web.Controllers
         {
             bool counterExists;
             {
-                var counter = await _counterRepo.GetCounterByName(name)
+                var counter = await _counterRepo.GetCounterByNameAsync(name)
                     .ConfigureAwait(false);
                 counterExists = counter != null;
             }
@@ -48,7 +48,7 @@ namespace ESC.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> QueryCounter(string name)
         {
-            var counter = await _counterRepo.GetCounterByName(name)
+            var counter = await _counterRepo.GetCounterByNameAsync(name)
                 .ConfigureAwait(false);
 
             if (counter != null)
@@ -67,7 +67,7 @@ namespace ESC.Web.Controllers
             Result result;
             bool counterExists;
             {
-                var counter = await _counterRepo.GetCounterByName(name)
+                var counter = await _counterRepo.GetCounterByNameAsync(name)
                     .ConfigureAwait(false);
                 counterExists = counter != null;
             }

@@ -10,7 +10,7 @@ Trying out [Event Sourcing] design
 
 ```sh
 # run an instance of Event Store database
-docker run -it --name eventstore --publish 2113:2113 --publish 1113:1113 eventstore/eventstore
+docker run -it --name esc-eventstore --publish 2113:2113 --publish 1113:1113 eventstore/eventstore
 
 # redis
 docker run --name esc-redis --publish 6379:6379 --detach redis
@@ -36,18 +36,21 @@ curl -X GET "http://localhost:5000/api/counters/foo"
 ```
 
 ```sh
+# run services
+docker start esc-eventstore esc-redis
+
 # connect to Redis instance
-docker run -it --link esc-redis:redis --rm redis redis-cli -h redis -p 6379
+docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 ```
 
 ## ToDo
 
 - [X] Event Store
-- [X] CQRS
 - [X] Read Model
+- [ ] Rx for Event Handlers
+- [ ] Catch-up events
+- [ ] CQRS
 - [ ] Snapshots
-- [ ] RabbitMQ for mutations
-- [ ] Rx.JS and Event Handlers
 - [ ] Clusters for EventStore, Redis, and RabbitMQ
 - [X] System Design Diagram
 - [ ] What's Next?
