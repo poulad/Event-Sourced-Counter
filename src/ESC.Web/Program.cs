@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace EventSourcedCounter
+namespace ESC.Web
 {
     public class Program
     {

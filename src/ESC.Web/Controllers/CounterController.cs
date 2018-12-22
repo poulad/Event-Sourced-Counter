@@ -1,30 +1,35 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using EventSourcedCounter.Events;
-using EventSourcedCounter.Models;
-using EventSourcedCounter.Services;
+using ESC.Data.Redis;
+using ESC.Web.Events;
+using ESC.Web.Models;
+using ESC.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace EventSourcedCounter.Controllers
+namespace ESC.Web.Controllers
 {
     [Route("api/counters/{name}")]
     public class CounterController : Controller
     {
         private readonly EventsRepo _eventsRepo;
+        private readonly CounterRepo _counterRepo;
 
         public CounterController()
         {
             _eventsRepo = new EventsRepo();
+            _counterRepo = new CounterRepo();
         }
 
         [HttpPost]
         public async Task<IActionResult> StartCounter(string name)
         {
-            bool counterExists = await _eventsRepo.CounterExistsAsync(name);
+            bool counterExists;
+            {
+                var counter = await _counterRepo.GetCounterByName(name)
+                    .ConfigureAwait(false);
+                counterExists = counter != null;
+            }
+
             Result result;
 
             if (counterExists)
@@ -43,40 +48,29 @@ namespace EventSourcedCounter.Controllers
         [HttpGet]
         public async Task<IActionResult> QueryCounter(string name)
         {
-            var events = await _eventsRepo.GetAllCounterEventsAsync(name);
+            var counter = await _counterRepo.GetCounterByName(name)
+                .ConfigureAwait(false);
 
-            if (!events.Any())
+            if (counter != null)
+            {
+                return Json(counter);
+            }
+            else
             {
                 return Json(new Result(false, "Counter must be created first"));
             }
-
-            var counter = new Counter {Name = name};
-            // aggregation of the events to build the current state:
-            foreach (var ev in events)
-            {
-                if (ev.EventType == EventTypes.CounterIncremented)
-                {
-                    string json = Encoding.UTF8.GetString(ev.Data);
-                    var jObj = JsonConvert.DeserializeObject<JObject>(json);
-
-                    counter.Value += jObj.Value<int>("count");
-                }
-                else if (ev.EventType == EventTypes.CounterCreated)
-                {
-                    counter.CreatedAt = ev.Created;
-                }
-
-                counter.LastModifiedAt = ev.Created;
-            }
-
-            return Json(counter);
         }
 
         [HttpPatch]
         public async Task<IActionResult> IncrementCounter(string name, [FromQuery] int count = 1)
         {
             Result result;
-            bool counterExists = await _eventsRepo.CounterExistsAsync(name);
+            bool counterExists;
+            {
+                var counter = await _counterRepo.GetCounterByName(name)
+                    .ConfigureAwait(false);
+                counterExists = counter != null;
+            }
 
             if (counterExists)
             {

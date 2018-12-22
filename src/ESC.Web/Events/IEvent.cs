@@ -1,4 +1,4 @@
-namespace EventSourcedCounter.Events
+namespace ESC.Web.Events
 {
     public interface IEvent
     {

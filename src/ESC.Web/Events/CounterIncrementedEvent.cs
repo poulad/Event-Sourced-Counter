@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace EventSourcedCounter.Events
+namespace ESC.Web.Events
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CounterIncrementedEvent : EventBase

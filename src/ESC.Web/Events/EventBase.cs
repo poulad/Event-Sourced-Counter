@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace EventSourcedCounter.Events
+namespace ESC.Web.Events
 {
     public abstract class EventBase : IEvent
     {
