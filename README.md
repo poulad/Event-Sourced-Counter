@@ -2,6 +2,10 @@
 
 Trying out [Event Sourcing] design
 
+## Design
+
+![Diagram](./design-diagram.png)
+
 ## Run
 
 ```sh
@@ -45,7 +49,7 @@ docker run -it --link esc-redis:redis --rm redis redis-cli -h redis -p 6379
 - [ ] RabbitMQ for mutations
 - [ ] Rx.JS and Event Handlers
 - [ ] Clusters for EventStore, Redis, and RabbitMQ
-- [ ] System Design Diagram
+- [X] System Design Diagram
 - [ ] What's Next?
 
 [Event Sourcing]: https://www.erikheemskerk.nl/event-sourcing-awesome-powerful-different/
