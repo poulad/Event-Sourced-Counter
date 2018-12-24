@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ESC.Data.Redis;
 using ESC.Data.Redis.Entities;
@@ -18,30 +19,55 @@ namespace ESC.Events.Handlers
         static async Task Main()
         {
             using (_repo = new CounterRepo())
-            using (var eventStoreClient = EventStoreConnection.Create(EventStoreConnectionString))
+            using (var esClient = EventStoreConnection.Create(EventStoreConnectionString))
             {
-                await eventStoreClient.ConnectAsync()
+                await esClient.ConnectAsync()
                     .ConfigureAwait(false);
 
-                string lastPosition = await _repo.GetLastEventPositionAsync()
-                    .ConfigureAwait(false);
+                var cancellationSource = new CancellationTokenSource();
 
-                if (lastPosition != null)
+                // "WebRequest" stream
                 {
-                    // ToDo catch up first
+                    long? lastPosition = await _repo.GetLastProcessedEventIdAsync(StreamNames.WebRequestStreamName)
+                        .ConfigureAwait(false);
+
+                    var webRequestSubscriber = new WebRequestSubscriber(_repo);
+                    esClient.SubscribeToStreamFrom(
+                        StreamNames.WebRequestStreamName,
+                        lastPosition,
+                        CatchUpSubscriptionSettings.Default,
+                        webRequestSubscriber.OnCatchUpSubscriptionEvent,
+                        webRequestSubscriber.OnLiveProcessingStarted,
+                        (subscription, reason, exception) =>
+                        {
+                            webRequestSubscriber.OnCatchUpSubscriptionDropped(subscription, reason, exception);
+                            cancellationSource.Cancel();
+                        }
+                    );
                 }
 
-                await eventStoreClient.SubscribeToAllAsync(false, EventAppeared)
-                    .ConfigureAwait(false);
+//                esClient.SubscribeToStreamFrom(
+//                    "$ce-counter",
+//                    lastPosition,
+//                    CatchUpSubscriptionSettings.Default,
+//                    EventAppeared
+//                );
 
-                Console.WriteLine("Subscription Activated.");
-                await Task.Delay(TimeSpan.FromHours(2))
-                    .ConfigureAwait(false);
-                Console.WriteLine("BYE!");
+                try
+                {
+                    await Task.Delay(TimeSpan.FromHours(2), cancellationSource.Token)
+                        .ConfigureAwait(false);
+
+                    Console.WriteLine("2 hours passed! Find a better way to do this.");
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("Whoops! Something went wrong...");
+                }
             }
         }
 
-        private static Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
+        private static Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
         {
             if (!resolvedEvent.OriginalStreamId.StartsWith(StreamNames.CounterStreamPrefix))
             {
@@ -51,12 +77,12 @@ namespace ESC.Events.Handlers
             Task task;
             switch (resolvedEvent.Event.EventType)
             {
-                case Types.CounterCreated:
-                    task = CreateCounterAsync(resolvedEvent.Event);
-                    break;
-                case Types.CounterIncremented:
-                    task = IncrementCounterAsync(resolvedEvent.Event);
-                    break;
+//                case Types.CounterStarted:
+//                    task = CreateCounterAsync(resolvedEvent.Event);
+//                    break;
+//                case Types.CounterIncremented:
+//                    task = IncrementCounterAsync(resolvedEvent.Event);
+//                    break;
                 default:
                     string json = JsonConvert.SerializeObject(resolvedEvent, Formatting.Indented);
                     Console.WriteLine($"Invalid event found!{Environment.NewLine}{json}");

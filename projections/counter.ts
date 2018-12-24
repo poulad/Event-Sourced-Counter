@@ -1,13 +1,9 @@
 /// <reference path="event-store.d.ts" />
 
-fromStream(`counter:foo`)
+fromCategory('counter')
     .when({
-        $init: () => {
-            return {
-                value: 0
-            };
-        },
-        "counter.incremented": (state, event) => {
-            state.value += event.body.count;
+        $init: () => { return []; },
+        $any: (state, event) => {
+            state.push(event);
         },
     })

@@ -13,6 +13,8 @@ namespace ESC.Data.Redis.Entities
 
         public long Value { get; set; }
 
+        public long Version { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime LastModifiedAt { get; set; }

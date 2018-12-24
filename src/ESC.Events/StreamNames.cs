@@ -2,7 +2,9 @@ namespace ESC.Events
 {
     public static class StreamNames
     {
-        public const string CounterStreamPrefix = "counter:";
+        public const string CounterStreamPrefix = "counter-";
+
+        public const string WebRequestStreamName = "WebRequest";
 
         public static string GetCounterName(string streamName)
         {

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using ESC.Data.Redis;
-using ESC.Web.Events;
+using ESC.Events;
 using ESC.Web.Models;
 using ESC.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ESC.Web.Controllers
 {
@@ -17,32 +19,41 @@ namespace ESC.Web.Controllers
         public CounterController()
         {
             _eventsRepo = new EventsRepo();
-            _counterRepo = new CounterRepo();
+//            _counterRepo = new CounterRepo();
         }
 
         [HttpPost]
-        public async Task<IActionResult> StartCounter(string name)
+        public async Task<IActionResult> CreateNewCounter(string name)
         {
-            bool counterExists;
-            {
-                var counter = await _counterRepo.GetCounterByNameAsync(name)
-                    .ConfigureAwait(false);
-                counterExists = counter != null;
-            }
+//            bool counterExists;
+//            {
+//                var counter = await _counterRepo.GetCounterByNameAsync(name)
+//                    .ConfigureAwait(false);
+//                counterExists = counter != null;
+//            }
 
             Result result;
 
-            if (counterExists)
+            string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
+
+//            if (counterExists)
             {
-                result = new Result(false, "Counter already exists");
+//                result = new Result(false, "Counter already exists");
             }
-            else
+//            else
             {
-                await _eventsRepo.AppendCounterEventAsync(name, new SimpleEvent(EventTypes.CounterCreated));
-                result = new Result(true);
+                await _eventsRepo.AppendWebRequestEventAsync(
+                    new NewCounterRequestedEvent
+                    {
+                        Name = name,
+                        CorrelationId = reqId,
+                    }
+                ).ConfigureAwait(false);
+
+                result = new Result(true, "Request scheduled. Your Counter will be created soon.", reqId);
             }
 
-            return Json(result);
+            return Json(result, new JsonSerializerSettings {Formatting = Formatting.Indented});
         }
 
         [HttpGet]
@@ -76,7 +87,7 @@ namespace ESC.Web.Controllers
             {
                 if (0 < count)
                 {
-                    await _eventsRepo.AppendCounterEventAsync(name, new CounterIncrementedEvent(count));
+//                    await _eventsRepo.AppendCounterEventAsync(name, new CounterIncrementedEvent(count));
                     result = new Result(true);
                 }
                 else

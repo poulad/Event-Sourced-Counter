@@ -9,12 +9,14 @@ Trying out [Event Sourcing] design
 ## Run
 
 ```sh
-# run an instance of Event Store database
-docker run -it --name esc-eventstore --publish 2113:2113 --publish 1113:1113 eventstore/eventstore
+# run an instance of Event Store in the background
+docker run --detach --name esc-eventstore --publish 2113:2113 --publish 1113:1113 eventstore/eventstore
 
-# redis
-docker run --name esc-redis --publish 6379:6379 --detach redis
+# run an instance of Redis in the background
+docker run --detach --name esc-redis --publish 6379:6379 redis
+```
 
+```sh
 # run the web API
 cd ./EventSourcedCounter/
 dotnet run
