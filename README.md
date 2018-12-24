@@ -57,12 +57,14 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 - [X] Catch-up subscriptions
 - [ ] CQRS
 - [ ] Snapshots
+- [ ] Dockerized Services
+- [ ] Travis-CI multi-staged builds
 - [ ] Clustered EventStore with 3 nodes
+- [ ] Deploy to Heroku
 - [ ] Performance Tests
-- [ ] Cucumber Definitions
+- [ ] [Cucumber] Definitions
 - [ ] DDD Concepts Applied
 - [ ] System Design Diagrams
-- [ ] Try deploying all the services to Heroku
 - [ ] Try RX for Event Handlers?
 - [ ] Try PouchDb to sync events and notifications?
 - [ ] Try [Blazor] and WASM?
