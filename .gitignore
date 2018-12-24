@@ -265,3 +265,5 @@ appsettings.*.json
 # VS Code Editor
 .vscode/
 
+# Projections output
+/projections/dist/

@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "module": "es2015",
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outDir": "./dist/",
+    },
+    "include": [
+        "./**/*"
+    ],
+}
