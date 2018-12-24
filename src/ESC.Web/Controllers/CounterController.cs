@@ -74,17 +74,21 @@ namespace ESC.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> QueryCounter(string name)
         {
-            var counter = await _counterRepo.GetCounterByNameAsync(name)
+            Result result;
+
+            var counterEntity = await _counterRepo.GetCounterByNameAsync(name)
                 .ConfigureAwait(false);
 
-            if (counter != null)
+            if (counterEntity != null)
             {
-                return Json(counter);
+                result = new Result(true, value: (CounterDto) counterEntity);
             }
             else
             {
-                return Json(new Result(false, "Counter must be created first"));
+                result = new Result(false, "Counter must be created first.");
             }
+
+            return Json(result, new JsonSerializerSettings {Formatting = Formatting.Indented});
         }
 
         [HttpPatch]

@@ -36,7 +36,7 @@ namespace ESC.Events.Handlers
                 {
                     Id = Guid.NewGuid().ToString(), // ToDo How to ensure this ID is unique?
                     Name = e.Name,
-                    Value = 0,
+                    Count = 0,
                     CreatedAt = DateTime.UtcNow,
                     Version = 0,
                 };

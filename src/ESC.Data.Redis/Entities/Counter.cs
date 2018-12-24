@@ -11,7 +11,7 @@ namespace ESC.Data.Redis.Entities
 
         public string Name { get; set; }
 
-        public long Value { get; set; }
+        public long Count { get; set; }
 
         public long Version { get; set; }
 

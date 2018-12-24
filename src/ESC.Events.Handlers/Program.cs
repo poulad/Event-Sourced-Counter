@@ -119,7 +119,7 @@ namespace ESC.Events.Handlers
             var counter = await _repo.GetCounterByNameAsync(counterName)
                 .ConfigureAwait(false);
 
-            counter.Value += count;
+            counter.Count += count;
 
             await _repo.SetCounterAsync(counter)
                 .ConfigureAwait(false);

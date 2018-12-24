@@ -45,16 +45,29 @@ docker start esc-eventstore esc-redis
 docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 ```
 
-## ToDo
+## Roadmap
 
 - [X] Event Store
-- [X] Read Model
-- [ ] Try RX for Event Handlers?
-- [ ] Catch-up events
+- [X] Read Model: Redis
+- [ ] Read Model: Postgres
+- [ ] Read Model: Mongo
+- [ ] Read Model: Neo4j
+- [ ] Angular SPA
+- [ ] Angular Material
+- [X] Catch-up subscriptions
 - [ ] CQRS
 - [ ] Snapshots
-- [ ] Clusters for EventStore, Redis, and RabbitMQ
-- [X] System Design Diagram
-- [ ] What's Next?
+- [ ] Clustered EventStore with 3 nodes
+- [ ] Performance Tests
+- [ ] Cucumber Definitions
+- [ ] DDD Concepts Applied
+- [ ] System Design Diagrams
+- [ ] Try deploying all the services to Heroku
+- [ ] Try RX for Event Handlers?
+- [ ] Try PouchDb to sync events and notifications?
+- [ ] Try [Blazor] and WASM?
 
 [Event Sourcing]: https://www.erikheemskerk.nl/event-sourcing-awesome-powerful-different/
+[PuchDb]: https://github.com/pouchdb/pouchdb
+[Cucumber]: http://docs.cucumber.io/
+[Blazor]: https://blazor.net

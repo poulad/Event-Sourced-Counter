@@ -10,16 +10,20 @@ namespace ESC.Web.Models
 
         public string Message { get; set; }
 
+        public object Value { get; set; }
+
         public string CorrelationId { get; set; }
 
         public Result(
             bool ok,
             string message = default,
+            object value = default,
             string correlationId = default
         )
         {
             Ok = ok;
             Message = message;
+            Value = value;
             CorrelationId = correlationId;
         }
     }
