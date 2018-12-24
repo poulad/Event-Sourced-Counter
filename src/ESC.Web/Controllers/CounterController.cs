@@ -24,12 +24,14 @@ namespace ESC.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateNewCounter(string name)
+        public async Task<IActionResult> CreateNewCounter([FromRoute] string name)
         {
             Result result;
 
             // validate the counter name user asked for
-            bool isValidName = Regex.IsMatch(name, @"^[A-Z](?:[A-Z]|\d|-|_|\.)+$", RegexOptions.IgnoreCase);
+            bool isValidName = Regex.IsMatch(
+                name, @"^[A-Z](?:[A-Z]|\d|-|_|\.)+$", RegexOptions.IgnoreCase
+            );
             if (isValidName)
             {
                 bool isDuplicateCounterName;
@@ -51,7 +53,9 @@ namespace ESC.Web.Controllers
                         }
                     ).ConfigureAwait(false);
 
-                    result = new Result(true, "Request scheduled. Your Counter will be created soon.", reqId);
+                    result = new Result(
+                        true, "Request scheduled. Your counter will be created soon.", reqId
+                    );
                 }
                 else
                 {
@@ -68,11 +72,11 @@ namespace ESC.Web.Controllers
                 );
             }
 
-            return Json(result, new JsonSerializerSettings {Formatting = Formatting.Indented});
+            return Json(result, new JsonSerializerSettings { Formatting = Formatting.Indented });
         }
 
         [HttpGet]
-        public async Task<IActionResult> QueryCounter(string name)
+        public async Task<IActionResult> QueryCounter([FromRoute] string name)
         {
             Result result;
 
@@ -88,30 +92,38 @@ namespace ESC.Web.Controllers
                 result = new Result(false, "Counter must be created first.");
             }
 
-            return Json(result, new JsonSerializerSettings {Formatting = Formatting.Indented});
+            return Json(result, new JsonSerializerSettings { Formatting = Formatting.Indented });
         }
 
         [HttpPatch]
-        public async Task<IActionResult> IncrementCounter(string name, [FromQuery] int count = 1)
+        public async Task<IActionResult> IncrementCounter([FromRoute] string name, [FromQuery] int count = 1)
         {
             Result result;
             bool counterExists;
             {
-                var counter = await _counterRepo.GetCounterByNameAsync(name)
+                var counterEntity = await _counterRepo.GetCounterByNameAsync(name)
                     .ConfigureAwait(false);
-                counterExists = counter != null;
+                counterExists = counterEntity != null;
             }
 
             if (counterExists)
             {
                 if (0 < count)
                 {
-//                    await _eventsRepo.AppendCounterEventAsync(name, new CounterIncrementedEvent(count));
-                    result = new Result(true);
+                    string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
+                    await _eventsRepo.AppendWebRequestEventAsync(new CounterValueIncrementedEvent
+                    {
+                        Count = count,
+                        CorrelationId = reqId,
+                    }).ConfigureAwait(false);
+
+                    result = new Result(
+                        true, "Request scheduled. Your counter will be created soon", correlationId: reqId
+                    );
                 }
                 else
                 {
-                    result = new Result(false, "Invalid count");
+                    result = new Result(false, "Count value should be greater than zero.");
                 }
             }
             else
@@ -119,11 +131,17 @@ namespace ESC.Web.Controllers
                 result = new Result(false, "Counter must be created first");
             }
 
-            return Json(result);
+            return Json(result, new JsonSerializerSettings { Formatting = Formatting.Indented });
+        }
+
+        [HttpPut]
+        public Task<IActionResult> SetCounterValue([FromRoute] string name, [FromBody] SetCountInputDto dto)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpDelete]
-        public Task<IActionResult> DeleteCounter(string name)
+        public Task<IActionResult> DeleteCounter([FromRoute] string name)
         {
             throw new NotImplementedException();
         }
