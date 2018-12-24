@@ -25,19 +25,22 @@ namespace ESC.Events.Handlers
         {
             switch (resolvedEvent.Event.EventType)
             {
-//                case Types.CounterStarted:
-//                    task = CreateCounterAsync(resolvedEvent.Event);
-//                    break;
-//                case Types.CounterIncremented:
-//                    task = IncrementCounterAsync(resolvedEvent.Event);
-//                    break;
+                case Types.NewCounterRequested:
+                    var handler = new NewCounterRequestedEventHandler(_counterRepo);
+
+                    string data = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
+                    var e = JsonConvert.DeserializeObject<NewCounterRequestedEvent>(data);
+                    handler.Handle(resolvedEvent, e)
+                        .ConfigureAwait(false);
+                    break;
                 default:
                     string json = JsonConvert.SerializeObject(resolvedEvent, Formatting.Indented);
                     string eventData = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
                     Console.WriteLine(
-                        $"Invalid event found!{Environment.NewLine}{eventData}{Environment.NewLine}{json}"
+                        $"Invalid event found in stream `{subscription.StreamId}`!" + Environment.NewLine +
+                        eventData + Environment.NewLine + json
                     );
-                    break;
+                    return;
             }
 
             long lastProcessedEventId = resolvedEvent.OriginalEventNumber;
@@ -49,7 +52,10 @@ namespace ESC.Events.Handlers
 
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write($"Subscription {subscription.StreamId} processed {lastProcessedEventId}.");
+            Console.Write(
+                $"Subscription for stream `{subscription.StreamId}` processed " +
+                $"event number {lastProcessedEventId}."
+            );
             Console.ResetColor();
             Console.WriteLine();
         }
@@ -60,7 +66,7 @@ namespace ESC.Events.Handlers
         {
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write($"Subscription {subscription.StreamId} has gone live!");
+            Console.Write($"Subscription for stream `{subscription.StreamId}` has gone live!");
             Console.ResetColor();
             Console.WriteLine();
         }
@@ -74,7 +80,8 @@ namespace ESC.Events.Handlers
             Console.BackgroundColor = ConsoleColor.Red;
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(
-                $"Subscription {subscription.StreamId} dropped! {dropReason}{Environment.NewLine}{exception}"
+                $"Subscription for stream `{subscription.StreamId}` dropped! {dropReason}" +
+                Environment.NewLine + exception
             );
             Console.ResetColor();
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ESC.Data.Redis;
 using ESC.Events;
@@ -19,38 +20,52 @@ namespace ESC.Web.Controllers
         public CounterController()
         {
             _eventsRepo = new EventsRepo();
-//            _counterRepo = new CounterRepo();
+            _counterRepo = new CounterRepo();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateNewCounter(string name)
         {
-//            bool counterExists;
-//            {
-//                var counter = await _counterRepo.GetCounterByNameAsync(name)
-//                    .ConfigureAwait(false);
-//                counterExists = counter != null;
-//            }
-
             Result result;
 
-            string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
-
-//            if (counterExists)
+            // validate the counter name user asked for
+            bool isValidName = Regex.IsMatch(name, @"^[A-Z](?:[A-Z]|\d|-|_|\.)+$", RegexOptions.IgnoreCase);
+            if (isValidName)
             {
-//                result = new Result(false, "Counter already exists");
+                bool isDuplicateCounterName;
+                {
+                    var counter = await _counterRepo.GetCounterByNameAsync(name)
+                        .ConfigureAwait(false);
+                    isDuplicateCounterName = counter != null;
+                }
+
+                if (!isDuplicateCounterName)
+                {
+                    string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
+
+                    await _eventsRepo.AppendWebRequestEventAsync(
+                        new NewCounterRequestedEvent
+                        {
+                            Name = name,
+                            CorrelationId = reqId,
+                        }
+                    ).ConfigureAwait(false);
+
+                    result = new Result(true, "Request scheduled. Your Counter will be created soon.", reqId);
+                }
+                else
+                {
+                    result = new Result(false, "Counter with that name already exists.");
+                }
             }
-//            else
+            else
             {
-                await _eventsRepo.AppendWebRequestEventAsync(
-                    new NewCounterRequestedEvent
-                    {
-                        Name = name,
-                        CorrelationId = reqId,
-                    }
-                ).ConfigureAwait(false);
-
-                result = new Result(true, "Request scheduled. Your Counter will be created soon.", reqId);
+                result = new Result(
+                    false,
+                    "Counter name is invalid. " +
+                    "Allowed characters are alphanumeric characters, dot, underscore, and hyphen. " +
+                    "Name must start with a letter."
+                );
             }
 
             return Json(result, new JsonSerializerSettings {Formatting = Formatting.Indented});

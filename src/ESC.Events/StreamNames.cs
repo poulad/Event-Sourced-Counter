@@ -6,6 +6,8 @@ namespace ESC.Events
 
         public const string WebRequestStreamName = "WebRequest";
 
+        public static string GetStreamNameFromCounterId(string counterId) => $"{CounterStreamPrefix}{counterId}";
+
         public static string GetCounterName(string streamName)
         {
             string counterName;

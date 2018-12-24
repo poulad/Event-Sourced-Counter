@@ -12,7 +12,8 @@ namespace ESC.Events.Handlers
 {
     class Program
     {
-        const string EventStoreConnectionString = "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500";
+        internal const string EventStoreConnectionString =
+            "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500";
 
         private static CounterRepo _repo;
 

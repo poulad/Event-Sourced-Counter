@@ -49,7 +49,7 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 
 - [X] Event Store
 - [X] Read Model
-- [ ] Rx for Event Handlers
+- [ ] Try RX for Event Handlers?
 - [ ] Catch-up events
 - [ ] CQRS
 - [ ] Snapshots
