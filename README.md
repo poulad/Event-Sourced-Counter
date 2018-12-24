@@ -57,6 +57,11 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 - [ ] [DDD] Patterns
 - [X] Counter Service
 - [ ] [Identicon] Service
+- [ ] [OpenAPI] Specs Generator
+- [ ] [Swagger UI]
+- [ ] [DocFX] Docs Generator
+- [ ] Code Coverage Report
+- [ ] Code Quality Report
 - [ ] [Angular] SPA
 - [ ] [Angular Material]
 - [ ] [Docker]ized Services
@@ -80,6 +85,9 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 [CQRS]: https://www.martinfowler.com/bliki/CQRS.html
 [DDD]: https://airbrake.io/blog/software-design/domain-driven-design
 [Identicon]: https://jdenticon.com/
+[OpenAPI]: https://swagger.io/
+[Swagger UI]: https://swagger.io/tools/swagger-ui/
+[DocFX]: https://dotnet.github.io/docfx/
 [Angular]: https://angular.io/
 [Angular Material]: https://material.angular.io/
 [Docker]: https://www.docker.com/
