@@ -47,29 +47,46 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 
 ## Roadmap
 
-- [X] Event Store
-- [X] Read Model: Redis
-- [ ] Read Model: Postgres
-- [ ] Read Model: Mongo
-- [ ] Read Model: Neo4j
-- [ ] Angular SPA
-- [ ] Angular Material
-- [X] Catch-up subscriptions
-- [ ] CQRS
-- [ ] Snapshots
-- [ ] Dockerized Services
-- [ ] Travis-CI multi-staged builds
-- [ ] Clustered EventStore with 3 nodes
-- [ ] Deploy to Heroku
+- [X] [Event Store]
+- [X] Read Model: [Redis]
+- [ ] Read Model: [Postgres]
+- [ ] Read Model: [Mongo]
+- [ ] Read Model: [Neo4j]
+- [ ] Event Store Snapshots
+- [ ] [CQRS] Pattern
+- [ ] [DDD] Patterns
+- [X] Counter Service
+- [ ] [Identicon] Service
+- [ ] [Angular] SPA
+- [ ] [Angular Material]
+- [ ] [Docker]ized Services
+- [ ] [Travis-CI] multi-staged builds
+- [ ] Event Store cluster with 3 nodes
+- [ ] [Heroku] Deployments
 - [ ] Performance Tests
 - [ ] [Cucumber] Definitions
-- [ ] DDD Concepts Applied
 - [ ] System Design Diagrams
-- [ ] Try RX for Event Handlers?
-- [ ] Try PouchDb to sync events and notifications?
-- [ ] Try [Blazor] and WASM?
+- [ ] Try [PouchDB] in the SPA
+- [ ] Try [Push Notifications] in the SPA
+- [ ] Try [ReactiveX] for Event Handlers
+- [ ] Try [Blazor]
 
 [Event Sourcing]: https://www.erikheemskerk.nl/event-sourcing-awesome-powerful-different/
-[PuchDb]: https://github.com/pouchdb/pouchdb
+[Event Store]: https://eventstore.org/
+[Redis]: https://redis.io/
+[Postgres]: https://www.postgresql.org/
+[Mongo]: https://www.mongodb.com/
+[Neo4j]: https://neo4j.com/
+[CQRS]: https://www.martinfowler.com/bliki/CQRS.html
+[DDD]: https://airbrake.io/blog/software-design/domain-driven-design
+[Identicon]: https://jdenticon.com/
+[Angular]: https://angular.io/
+[Angular Material]: https://material.angular.io/
+[Docker]: https://www.docker.com/
+[Travis-CI]: https://travis-ci.org/
+[Heroku]: https://www.heroku.com/
 [Cucumber]: http://docs.cucumber.io/
+[PouchDB]: https://github.com/pouchdb/pouchdb
+[Push Notifications]: https://developers.google.com/drive/api/v3/push
+[ReactiveX]: http://reactivex.io/
 [Blazor]: https://blazor.net
