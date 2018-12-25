@@ -6,8 +6,12 @@ namespace ESC.Events
 
         public const string NewCounterCreated = "counter.new.created";
 
-        public const string CounterValueIncremented = "counter.value.incremented";
+        public const string CounterIncrementRequested = "counter.value.incrementRequested";
 
-        public const string CounterValueSet = "counter.value.incremented";
+        public const string CounterIncremented = "counter.value.incremented";
+
+        public const string CounterValueSetRequested = "counter.value.setRequested";
+
+        public const string CounterValueSet = "counter.value.set";
     }
 }

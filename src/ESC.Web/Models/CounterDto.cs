@@ -1,5 +1,5 @@
 using System;
-using ESC.Data.Redis.Entities;
+using ESC.Data.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

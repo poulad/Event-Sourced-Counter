@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using ESC.Data.Entities;
 using ESC.Data.Redis;
-using ESC.Data.Redis.Entities;
 using EventStore.ClientAPI;
 
 namespace ESC.Events.Handlers
@@ -48,7 +48,7 @@ namespace ESC.Events.Handlers
                     StreamNames.GetStreamNameFromCounterId(newCounter.Id),
                     new NewCounterCreatedEvent
                     {
-                        Name = newCounter.Name,
+                        Counter = newCounter,
                         CorrelationId = e.CorrelationId,
                     }
                 ).ConfigureAwait(false);

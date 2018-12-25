@@ -7,5 +7,9 @@
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ESC.Data\ESC.Data.csproj" />
+    </ItemGroup>
    
 </Project>

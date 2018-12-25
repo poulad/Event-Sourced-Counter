@@ -14,12 +14,12 @@ namespace ESC.Web.Controllers
     [Route("api/counters/{name}")]
     public class CounterController : Controller
     {
-        private readonly EventsRepo _eventsRepo;
+        private readonly EventStoreClient _eventStoreClient;
         private readonly CounterRepo _counterRepo;
 
         public CounterController()
         {
-            _eventsRepo = new EventsRepo();
+            _eventStoreClient = new EventStoreClient();
             _counterRepo = new CounterRepo();
         }
 
@@ -45,7 +45,7 @@ namespace ESC.Web.Controllers
                 {
                     string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
 
-                    await _eventsRepo.AppendWebRequestEventAsync(
+                    await _eventStoreClient.AppendMutationRequestEventAsync(
                         new NewCounterRequestedEvent
                         {
                             Name = name,
@@ -54,7 +54,7 @@ namespace ESC.Web.Controllers
                     ).ConfigureAwait(false);
 
                     result = new Result(
-                        true, "Request scheduled. Your counter will be created soon.", reqId
+                        true, "Request scheduled. Counter will be created soon.", reqId
                     );
                 }
                 else
@@ -111,14 +111,15 @@ namespace ESC.Web.Controllers
                 if (0 < count)
                 {
                     string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
-                    await _eventsRepo.AppendWebRequestEventAsync(new CounterValueIncrementedEvent
+                    await _eventStoreClient.AppendMutationRequestEventAsync(new CounterIncrementRequestedEvent
                     {
-                        Count = count,
+                        CounterName = name,
+                        By = count,
                         CorrelationId = reqId,
                     }).ConfigureAwait(false);
 
                     result = new Result(
-                        true, "Request scheduled. Your counter will be created soon", correlationId: reqId
+                        true, "Request scheduled. Counter will be incremented soon.", correlationId: reqId
                     );
                 }
                 else

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ESC.Data.Redis;
-using ESC.Data.Redis.Entities;
 using EventStore.ClientAPI;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ESC.Events.Handlers
 {
@@ -27,32 +23,26 @@ namespace ESC.Events.Handlers
 
                 var cancellationSource = new CancellationTokenSource();
 
-                // "WebRequest" stream
+                // "counterMutations" stream
                 {
-                    long? lastPosition = await _repo.GetLastProcessedEventIdAsync(StreamNames.WebRequestStreamName)
+                    long? lastPosition = await _repo
+                        .GetLastProcessedEventIdAsync(StreamNames.CounterMutationsStreamName)
                         .ConfigureAwait(false);
 
-                    var webRequestSubscriber = new WebRequestSubscriber(_repo);
+                    var subscriber = new CounterMutationsSubscriber(_repo);
                     esClient.SubscribeToStreamFrom(
-                        StreamNames.WebRequestStreamName,
+                        StreamNames.CounterMutationsStreamName,
                         lastPosition,
                         CatchUpSubscriptionSettings.Default,
-                        webRequestSubscriber.OnCatchUpSubscriptionEvent,
-                        webRequestSubscriber.OnLiveProcessingStarted,
+                        subscriber.OnCatchUpSubscriptionEvent,
+                        subscriber.OnLiveProcessingStarted,
                         (subscription, reason, exception) =>
                         {
-                            webRequestSubscriber.OnCatchUpSubscriptionDropped(subscription, reason, exception);
+                            subscriber.OnCatchUpSubscriptionDropped(subscription, reason, exception);
                             cancellationSource.Cancel();
                         }
                     );
                 }
-
-//                esClient.SubscribeToStreamFrom(
-//                    "$ce-counter",
-//                    lastPosition,
-//                    CatchUpSubscriptionSettings.Default,
-//                    EventAppeared
-//                );
 
                 try
                 {
@@ -66,63 +56,6 @@ namespace ESC.Events.Handlers
                     Console.WriteLine("Whoops! Something went wrong...");
                 }
             }
-        }
-
-        private static Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
-        {
-            if (!resolvedEvent.OriginalStreamId.StartsWith(StreamNames.CounterStreamPrefix))
-            {
-                return Task.CompletedTask;
-            }
-
-            Task task;
-            switch (resolvedEvent.Event.EventType)
-            {
-//                case Types.CounterStarted:
-//                    task = CreateCounterAsync(resolvedEvent.Event);
-//                    break;
-//                case Types.CounterIncremented:
-//                    task = IncrementCounterAsync(resolvedEvent.Event);
-//                    break;
-                default:
-                    string json = JsonConvert.SerializeObject(resolvedEvent, Formatting.Indented);
-                    Console.WriteLine($"Invalid event found!{Environment.NewLine}{json}");
-                    task = Task.CompletedTask;
-                    break;
-            }
-
-            return task;
-        }
-
-        static async Task CreateCounterAsync(RecordedEvent recordedEvent)
-        {
-            var counter = new Counter
-            {
-                Name = recordedEvent.EventStreamId.Substring("counter:".Length),
-                CreatedAt = recordedEvent.Created,
-            };
-
-            await _repo.SetCounterAsync(counter)
-                .ConfigureAwait(false);
-        }
-
-        static async Task IncrementCounterAsync(RecordedEvent recordedEvent)
-        {
-            int count;
-            {
-                string evJson = Encoding.UTF8.GetString(recordedEvent.Data);
-                count = JsonConvert.DeserializeObject<JObject>(evJson).Value<int>("count");
-            }
-
-            string counterName = recordedEvent.EventStreamId.Substring("counter:".Length);
-
-            var counter = await _repo.GetCounterByNameAsync(counterName)
-                .ConfigureAwait(false);
-
-            counter.Count += count;
-
-            await _repo.SetCounterAsync(counter)
-                .ConfigureAwait(false);
         }
     }
 }

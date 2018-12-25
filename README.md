@@ -52,6 +52,7 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 - [ ] Read Model: [Postgres]
 - [ ] Read Model: [Mongo]
 - [ ] Read Model: [Neo4j]
+- [ ] Events Replay Tests
 - [ ] Event Store Snapshots
 - [ ] [CQRS] Pattern
 - [ ] [DDD] Patterns

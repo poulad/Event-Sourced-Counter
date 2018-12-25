@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using ESC.Data.Redis.Entities;
+using ESC.Data.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
@@ -38,7 +38,7 @@ namespace ESC.Data.Redis
         public Task SetLastProcessedEventIdAsync(string stream, long position)
         {
             EnsureConnected();
-            string json = JsonConvert.SerializeObject(new {position});
+            string json = JsonConvert.SerializeObject(new { position });
             return _db.StringSetAsync($"last_event:{stream}", json);
         }
 

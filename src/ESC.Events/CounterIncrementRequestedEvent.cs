@@ -4,12 +4,14 @@ using Newtonsoft.Json.Serialization;
 namespace ESC.Events
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
-    public class CounterValueIncrementedEvent : IEvent, ICorrelatedEvent
+    public class CounterIncrementRequestedEvent : IEvent, ICorrelatedEvent, IUniqueIdentifierEvent
     {
         [JsonIgnore]
-        public string Type => Types.CounterValueIncremented;
+        public string Type => Types.CounterIncrementRequested;
 
-        public int Count { get; set; }
+        public string CounterName { get; set; }
+
+        public int By { get; set; }
 
         public string CorrelationId { get; set; }
     }

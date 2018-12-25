@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 
 namespace ESC.Events.Handlers
 {
-    public class WebRequestSubscriber : IStreamCatchUpSubscriber
+    public class CounterMutationsSubscriber : IStreamCatchUpSubscriber
     {
         private readonly CounterRepo _counterRepo;
 
-        public WebRequestSubscriber(
+        public CounterMutationsSubscriber(
             CounterRepo counterRepo
         )
         {
@@ -26,13 +26,23 @@ namespace ESC.Events.Handlers
             switch (resolvedEvent.Event.EventType)
             {
                 case Types.NewCounterRequested:
-                    var handler = new NewCounterRequestedEventHandler(_counterRepo);
+                    var handler1 = new NewCounterRequestedEventHandler(_counterRepo);
 
-                    string data = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
-                    var e = JsonConvert.DeserializeObject<NewCounterRequestedEvent>(data);
-                    handler.Handle(resolvedEvent, e)
+                    string data1 = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
+                    var e1 = JsonConvert.DeserializeObject<NewCounterRequestedEvent>(data1);
+                    handler1.Handle(resolvedEvent, e1)
                         .ConfigureAwait(false);
                     break;
+
+                case Types.CounterIncrementRequested:
+                    var handler2 = new CounterIncrementRequestedEventHandler(_counterRepo);
+
+                    string data2 = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
+                    var e = JsonConvert.DeserializeObject<CounterIncrementRequestedEvent>(data2);
+                    handler2.Handle(resolvedEvent, e)
+                        .ConfigureAwait(false);
+                    break;
+
                 default:
                     string json = JsonConvert.SerializeObject(resolvedEvent, Formatting.Indented);
                     string eventData = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
@@ -46,7 +56,7 @@ namespace ESC.Events.Handlers
             long lastProcessedEventId = resolvedEvent.OriginalEventNumber;
 
             await _counterRepo.SetLastProcessedEventIdAsync(
-                StreamNames.WebRequestStreamName,
+                StreamNames.CounterMutationsStreamName,
                 lastProcessedEventId
             ).ConfigureAwait(false);
 
