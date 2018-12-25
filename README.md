@@ -74,6 +74,7 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 - [ ] System Design Diagrams
 - [ ] Try [PouchDB] in the SPA
 - [ ] Try [Push Notifications] in the SPA
+- [ ] Try [Web Socket] in the SPA
 - [ ] Try [ReactiveX] for Event Handlers
 - [ ] Try [Blazor]
 
@@ -97,5 +98,6 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 [Cucumber]: http://docs.cucumber.io/
 [PouchDB]: https://github.com/pouchdb/pouchdb
 [Push Notifications]: https://developers.google.com/drive/api/v3/push
+[Web Socket]: https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API
 [ReactiveX]: http://reactivex.io/
 [Blazor]: https://blazor.net
