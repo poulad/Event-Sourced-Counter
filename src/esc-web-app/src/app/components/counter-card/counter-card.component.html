@@ -1,0 +1,20 @@
+<mat-card class="counter-card">
+  <mat-card-header>
+    <div mat-card-avatar class="example-header-image"></div>
+    <mat-card-title>{{ counter.name }}</mat-card-title>
+    <mat-card-subtitle>By unknown user</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      Counter <code>{{ counter.name }}</code>
+      created at {{ counter.createdAt | date }}
+    </p>
+    <p>
+      Current count: {{ counter.count }}
+    </p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button>LIKE</button>
+    <button mat-button>SHARE</button>
+  </mat-card-actions>
+</mat-card>
