@@ -1,20 +1,30 @@
 using System;
 using System.Threading.Tasks;
+using ESC.Data;
 using ESC.Data.Entities;
-using ESC.Data.Redis;
+using ESC.Events.Handlers.Services;
 using EventStore.ClientAPI;
+using Microsoft.Extensions.Logging;
+using NUlid;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ESC.Events.Handlers
 {
     public class NewCounterRequestedEventHandler : IEventHandler<NewCounterRequestedEvent>
     {
-        private readonly CounterRepo _counterRepo;
+        private readonly IEventStoreClient _esClient;
+        private readonly ICounterRepository _counterRepo;
+        private readonly ILogger _logger;
 
         public NewCounterRequestedEventHandler(
-            CounterRepo counterRepo
+            IEventStoreClient esClient,
+            ICounterRepository counterRepo,
+            ILogger<NewCounterRequestedEventHandler> logger
         )
         {
+            _esClient = esClient;
             _counterRepo = counterRepo;
+            _logger = logger;
         }
 
         public async Task Handle(
@@ -22,29 +32,21 @@ namespace ESC.Events.Handlers
             NewCounterRequestedEvent e
         )
         {
-            bool isDuplicateCounterName;
+            // create new counter
+            var newCounter = new Counter
             {
-                var existingCounter = await _counterRepo.GetCounterByNameAsync(e.Name)
-                    .ConfigureAwait(false);
-                isDuplicateCounterName = existingCounter != null;
-            }
+                Id = Ulid.NewUlid().ToString(),
+                Name = e.Name,
+                Count = 0,
+                CreatedAt = DateTime.UtcNow,
+                Version = 0,
+            };
+            var error = await _counterRepo.AddAsync(newCounter)
+                .ConfigureAwait(false);
 
-            if (!isDuplicateCounterName)
+            if (error is null)
             {
-                // create new counter
-                var newCounter = new Counter
-                {
-                    Id = Guid.NewGuid().ToString(), // ToDo How to ensure this ID is unique?
-                    Name = e.Name,
-                    Count = 0,
-                    CreatedAt = DateTime.UtcNow,
-                    Version = 0,
-                };
-                await _counterRepo.SetCounterAsync(newCounter)
-                    .ConfigureAwait(false);
-
-                // emit the event
-                await EventStoreClient.AppendEventAsync(
+                await _esClient.AppendEventAsync(
                     StreamNames.GetStreamNameFromCounterId(newCounter.Id),
                     new NewCounterCreatedEvent
                     {
@@ -52,6 +54,10 @@ namespace ESC.Events.Handlers
                         CorrelationId = e.CorrelationId,
                     }
                 ).ConfigureAwait(false);
+            }
+            else if (error.Code == ErrorCodes.Duplicate)
+            {
+                // ToDo raise an validation event and push it to the client using correlation ID provided
             }
             else
             {

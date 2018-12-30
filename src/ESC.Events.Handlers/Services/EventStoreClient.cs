@@ -1,32 +1,32 @@
 using System;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using ESC.Events;
 using EventStore.ClientAPI;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace ESC.Web.Services
+namespace ESC.Events.Handlers.Services
 {
     public class EventStoreClient : IEventStoreClient
     {
         private readonly IEventStoreConnection _connection;
+        private readonly ILogger<EventStoreClient> _logger;
 
         public EventStoreClient(
-            IEventStoreConnection connection
+            IEventStoreConnection connection,
+            ILogger<EventStoreClient> logger
         )
         {
             _connection = connection;
+            _logger = logger;
         }
 
-        public async Task AppendMutationRequestEventAsync(
+        public async Task AppendEventAsync(
+            string streamName,
             IEvent e,
-            bool serializeEvent = true,
-            CancellationToken cancellationToken = default
+            bool serializeEvent = true
         )
         {
-            const string streamName = StreamNames.CounterMutationsStreamName;
-
             await _connection.ConnectAsync()
                 .ConfigureAwait(false);
 

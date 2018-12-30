@@ -1,60 +1,61 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using ESC.Data.Entities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
 
 namespace ESC.Data.Redis
 {
-    public class CounterRepo : IDisposable
+    public class CounterRepo : ICounterRepository, IDisposable
     {
         private IDatabase _db;
 
         private ConnectionMultiplexer _redisConnection;
 
-        public Task SetCounterAsync(Counter counter)
+        public Task<Error> AddAsync(
+            Counter counter,
+            CancellationToken cancellationToken = default
+        )
         {
-            EnsureConnected();
-            string json = JsonConvert.SerializeObject(counter);
-            return _db.StringSetAsync($"counter:{counter.Name}", json);
+            throw new NotImplementedException();
+//            EnsureConnected();
+//            string json = JsonConvert.SerializeObject(counter);
+//            return _db.StringSetAsync($"counter:{counter.Name}", json);
         }
 
-        public async Task<Counter> GetCounterByNameAsync(string counterName)
+        public Task<(Counter Counter, Error Error)> GetByIdAsync(
+            string id,
+            CancellationToken cancellationToken = default
+        )
         {
-            EnsureConnected();
-            string json = await _db.StringGetAsync($"counter:{counterName}")
-                .ConfigureAwait(false);
-
-            Counter counter = null;
-            if (json != null)
-            {
-                counter = JsonConvert.DeserializeObject<Counter>(json);
-            }
-
-            return counter;
+            throw new NotImplementedException();
         }
 
-        public Task SetLastProcessedEventIdAsync(string stream, long position)
+        public Task<(Counter Counter, Error Error)> GetByNameAsync(
+            string name,
+            CancellationToken cancellationToken = default
+        )
         {
-            EnsureConnected();
-            string json = JsonConvert.SerializeObject(new { position });
-            return _db.StringSetAsync($"last_event:{stream}", json);
+            throw new NotImplementedException();
+//            EnsureConnected();
+//            string json = await _db.StringGetAsync($"counter:{name}")
+//                .ConfigureAwait(false);
+//
+//            Counter counter = null;
+//            if (json != null)
+//            {
+//                counter = JsonConvert.DeserializeObject<Counter>(json);
+//            }
+//
+//            return counter;
         }
 
-        public Task<long?> GetLastProcessedEventIdAsync(string stream)
+        public Task<Error> DeleteAsync(
+            string id,
+            CancellationToken cancellationToken = default
+        )
         {
-            EnsureConnected();
-            return _db.StringGetAsync($"last_event:{stream}")
-                .ContinueWith(t =>
-                    {
-                        string json = t.Result;
-                        return json == null
-                            ? null
-                            : JsonConvert.DeserializeObject<JObject>(t.Result).Value<long?>("position");
-                    },
-                    TaskContinuationOptions.OnlyOnRanToCompletion
-                );
+            throw new NotImplementedException();
         }
 
         private void EnsureConnected()

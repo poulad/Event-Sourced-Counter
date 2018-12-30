@@ -1,26 +1,29 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ESC.Data.Redis;
+using ESC.Data;
 using ESC.Events;
 using ESC.Web.Models;
 using ESC.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NUlid;
 
 namespace ESC.Web.Controllers
 {
     [Route("api/counters/{name}")]
     public class CounterController : Controller
     {
-        private readonly EventStoreClient _eventStoreClient;
-        private readonly CounterRepo _counterRepo;
+        private readonly IEventStoreClient _eventStoreClient;
+        private readonly ICounterRepository _counterRepo;
 
-        public CounterController()
+        public CounterController(
+            IEventStoreClient eventStoreClient,
+            ICounterRepository counterRepo
+        )
         {
-            _eventStoreClient = new EventStoreClient();
-            _counterRepo = new CounterRepo();
+            _counterRepo = counterRepo;
+            _eventStoreClient = eventStoreClient;
         }
 
         [HttpPost]
@@ -34,28 +37,36 @@ namespace ESC.Web.Controllers
             );
             if (isValidName)
             {
-                bool isDuplicateCounterName;
+                var counterResult = await _counterRepo.GetByNameAsync(name)
+                    .ConfigureAwait(false);
+
+                if (counterResult.Error != null)
                 {
-                    var counter = await _counterRepo.GetCounterByNameAsync(name)
-                        .ConfigureAwait(false);
-                    isDuplicateCounterName = counter != null;
-                }
+                    if (counterResult.Error.Code == ErrorCodes.NotFound)
+                    {
+                        string correlationId = Ulid.NewUlid().ToString();
 
-                if (!isDuplicateCounterName)
-                {
-                    string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
+                        await _eventStoreClient.AppendMutationRequestEventAsync(
+                            new NewCounterRequestedEvent
+                            {
+                                Name = name,
+                                CorrelationId = correlationId,
+                            }
+                        ).ConfigureAwait(false);
 
-                    await _eventStoreClient.AppendMutationRequestEventAsync(
-                        new NewCounterRequestedEvent
-                        {
-                            Name = name,
-                            CorrelationId = reqId,
-                        }
-                    ).ConfigureAwait(false);
-
-                    result = new Result(
-                        true, "Request scheduled. Counter will be created soon.", reqId
-                    );
+                        result = new Result(
+                            true,
+                            "Request scheduled. Counter will be created soon.",
+                            correlationId: correlationId
+                        );
+                    }
+                    else
+                    {
+                        result = new Result(
+                            false,
+                            $"Failed to validate counter name. {counterResult.Error.Message}"
+                        );
+                    }
                 }
                 else
                 {
@@ -80,12 +91,12 @@ namespace ESC.Web.Controllers
         {
             Result result;
 
-            var counterEntity = await _counterRepo.GetCounterByNameAsync(name)
+            var counterResult = await _counterRepo.GetByNameAsync(name)
                 .ConfigureAwait(false);
 
-            if (counterEntity != null)
+            if (counterResult.Error is null)
             {
-                result = new Result(true, value: (CounterDto) counterEntity);
+                result = new Result(true, value: (CounterDto) counterResult.Counter);
             }
             else
             {
@@ -99,27 +110,24 @@ namespace ESC.Web.Controllers
         public async Task<IActionResult> IncrementCounter([FromRoute] string name, [FromQuery] int count = 1)
         {
             Result result;
-            bool counterExists;
-            {
-                var counterEntity = await _counterRepo.GetCounterByNameAsync(name)
-                    .ConfigureAwait(false);
-                counterExists = counterEntity != null;
-            }
 
-            if (counterExists)
+            var counterResult = await _counterRepo.GetByNameAsync(name)
+                .ConfigureAwait(false);
+
+            if (counterResult.Error is null)
             {
                 if (0 < count)
                 {
-                    string reqId = Activity.Current?.Id ?? HttpContext.TraceIdentifier ?? Guid.NewGuid().ToString();
+                    string correlationId = Ulid.NewUlid().ToString();
                     await _eventStoreClient.AppendMutationRequestEventAsync(new CounterIncrementRequestedEvent
                     {
                         CounterName = name,
                         By = count,
-                        CorrelationId = reqId,
+                        CorrelationId = correlationId,
                     }).ConfigureAwait(false);
 
                     result = new Result(
-                        true, "Request scheduled. Counter will be incremented soon.", correlationId: reqId
+                        true, "Request scheduled. Counter will be incremented soon.", correlationId: correlationId
                     );
                 }
                 else
@@ -127,9 +135,16 @@ namespace ESC.Web.Controllers
                     result = new Result(false, "Count value should be greater than zero.");
                 }
             }
+            else if (counterResult.Error.Code == ErrorCodes.NotFound)
+            {
+                result = new Result(false, "Counter must be created first.");
+            }
             else
             {
-                result = new Result(false, "Counter must be created first");
+                result = new Result(
+                    false,
+                    $"Failed to validate counter name. {counterResult.Error.Message}"
+                );
             }
 
             return Json(result, new JsonSerializerSettings { Formatting = Formatting.Indented });

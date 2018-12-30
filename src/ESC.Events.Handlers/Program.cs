@@ -1,61 +1,43 @@
-﻿using System;
-using System.Threading;
+﻿using System.IO;
 using System.Threading.Tasks;
-using ESC.Data.Redis;
-using EventStore.ClientAPI;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ESC.Events.Handlers
 {
     class Program
     {
-        internal const string EventStoreConnectionString =
-            "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500";
-
-        private static CounterRepo _repo;
-
         static async Task Main()
         {
-            using (_repo = new CounterRepo())
-            using (var esClient = EventStoreConnection.Create(EventStoreConnectionString))
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .AddJsonEnvVar("ESC_HANDLERS_SETTINGS", optional: true)
+                .Build();
+
+            var serviceCollection = new ServiceCollection()
+                .AddLogging(builder => builder
+                    .AddConfiguration(configuration.GetSection("Logging"))
+                    .AddConsole()
+                );
+
+            var startup = new Startup(configuration);
+            startup.ConfigureServices(serviceCollection);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            ILogger logger;
             {
-                await esClient.ConnectAsync()
-                    .ConfigureAwait(false);
-
-                var cancellationSource = new CancellationTokenSource();
-
-                // "counterMutations" stream
-                {
-                    long? lastPosition = await _repo
-                        .GetLastProcessedEventIdAsync(StreamNames.CounterMutationsStreamName)
-                        .ConfigureAwait(false);
-
-                    var subscriber = new CounterMutationsSubscriber(_repo);
-                    esClient.SubscribeToStreamFrom(
-                        StreamNames.CounterMutationsStreamName,
-                        lastPosition,
-                        CatchUpSubscriptionSettings.Default,
-                        subscriber.OnCatchUpSubscriptionEvent,
-                        subscriber.OnLiveProcessingStarted,
-                        (subscription, reason, exception) =>
-                        {
-                            subscriber.OnCatchUpSubscriptionDropped(subscription, reason, exception);
-                            cancellationSource.Cancel();
-                        }
-                    );
-                }
-
-                try
-                {
-                    await Task.Delay(TimeSpan.FromHours(2), cancellationSource.Token)
-                        .ConfigureAwait(false);
-
-                    Console.WriteLine("2 hours passed! Find a better way to do this.");
-                }
-                catch (TaskCanceledException)
-                {
-                    Console.WriteLine("Whoops! Something went wrong...");
-                }
+                var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                logger = loggerFactory.CreateLogger<Program>();
             }
+            logger.LogInformation("Starting the application.");
+
+            await startup.RunAsync(serviceProvider)
+                .ConfigureAwait(false);
+
+            logger.LogInformation("Application is stopped.");
         }
     }
 }

@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ESC.Data.Redis\ESC.Data.Redis.csproj" />
+      <ProjectReference Include="..\ESC.Data.Mongo\ESC.Data.Mongo.csproj" />
       <ProjectReference Include="..\ESC.Events\ESC.Events.csproj" />
     </ItemGroup>
 

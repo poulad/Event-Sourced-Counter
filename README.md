@@ -12,8 +12,8 @@ Trying out [Event Sourcing] design
 # run an instance of Event Store in the background
 docker run --detach --name esc-eventstore --publish 2113:2113 --publish 1113:1113 eventstore/eventstore
 
-# run an instance of Redis in the background
-docker run --detach --name esc-redis --publish 6379:6379 redis
+# run an instance of Mongo in the background
+docker run --detach --name esc-mongo --publish 27017:27017 mongo
 ```
 
 ```sh
@@ -39,10 +39,7 @@ curl -X GET "http://localhost:5000/api/counters/foo"
 
 ```sh
 # run services
-docker start esc-eventstore esc-redis
-
-# connect to Redis instance
-docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
+docker start esc-eventstore esc-mongo
 ```
 
 ## Roadmap
@@ -50,7 +47,7 @@ docker run --rm -it --link esc-redis:redis redis redis-cli -h redis -p 6379
 - [X] [Event Store]
 - [X] Read Model: [Redis]
 - [ ] Read Model: [Postgres]
-- [ ] Read Model: [Mongo]
+- [X] Read Model: [Mongo]
 - [ ] Read Model: [Neo4j]
 - [ ] Events Replay Tests
 - [ ] Event Store Snapshots

@@ -1,21 +1,30 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using ESC.Data.Redis;
+using ESC.Data;
 using EventStore.ClientAPI;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ESC.Events.Handlers
 {
     public class CounterMutationsSubscriber : IStreamCatchUpSubscriber
     {
-        private readonly CounterRepo _counterRepo;
+        private readonly IConfigRepository _configRepo;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger _logger;
 
         public CounterMutationsSubscriber(
-            CounterRepo counterRepo
+            IConfigRepository configRepo,
+            IServiceProvider serviceProvider,
+            ILogger<CounterMutationsSubscriber> logger
         )
         {
-            _counterRepo = counterRepo;
+            _configRepo = configRepo;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public async Task OnCatchUpSubscriptionEvent(
@@ -26,7 +35,7 @@ namespace ESC.Events.Handlers
             switch (resolvedEvent.Event.EventType)
             {
                 case Types.NewCounterRequested:
-                    var handler1 = new NewCounterRequestedEventHandler(_counterRepo);
+                    var handler1 = _serviceProvider.GetRequiredService<NewCounterRequestedEventHandler>();
 
                     string data1 = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
                     var e1 = JsonConvert.DeserializeObject<NewCounterRequestedEvent>(data1);
@@ -35,7 +44,7 @@ namespace ESC.Events.Handlers
                     break;
 
                 case Types.CounterIncrementRequested:
-                    var handler2 = new CounterIncrementRequestedEventHandler(_counterRepo);
+                    var handler2 = _serviceProvider.GetRequiredService<CounterIncrementRequestedEventHandler>();
 
                     string data2 = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
                     var e = JsonConvert.DeserializeObject<CounterIncrementRequestedEvent>(data2);
@@ -46,39 +55,31 @@ namespace ESC.Events.Handlers
                 default:
                     string json = JsonConvert.SerializeObject(resolvedEvent, Formatting.Indented);
                     string eventData = Encoding.UTF8.GetString(resolvedEvent.OriginalEvent.Data);
-                    Console.WriteLine(
-                        $"Invalid event found in stream `{subscription.StreamId}`!" + Environment.NewLine +
-                        eventData + Environment.NewLine + json
+                    _logger.LogWarning(
+                        "Invalid event found in stream {streamId}.\n{eventData}\n{json}",
+                        subscription.StreamId, eventData, json
                     );
                     return;
             }
 
             long lastProcessedEventId = resolvedEvent.OriginalEventNumber;
 
-            await _counterRepo.SetLastProcessedEventIdAsync(
+            await _configRepo.SetLastProcessedEventIdAsync(
                 StreamNames.CounterMutationsStreamName,
                 lastProcessedEventId
             ).ConfigureAwait(false);
 
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(
-                $"Subscription for stream `{subscription.StreamId}` processed " +
-                $"event number {lastProcessedEventId}."
+            _logger.LogDebug(
+                "Subscription for stream {streamId} processed event number {lastProcessedEventId}.",
+                subscription.StreamId, lastProcessedEventId
             );
-            Console.ResetColor();
-            Console.WriteLine();
         }
 
         public void OnLiveProcessingStarted(
             EventStoreCatchUpSubscription subscription
         )
         {
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write($"Subscription for stream `{subscription.StreamId}` has gone live!");
-            Console.ResetColor();
-            Console.WriteLine();
+            _logger.LogInformation("Subscription for stream {streamId} has gone live.", subscription.StreamId);
         }
 
         public void OnCatchUpSubscriptionDropped(
@@ -87,13 +88,11 @@ namespace ESC.Events.Handlers
             Exception exception
         )
         {
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(
-                $"Subscription for stream `{subscription.StreamId}` dropped! {dropReason}" +
-                Environment.NewLine + exception
+            _logger.LogCritical(
+                exception,
+                "Subscription for stream {streamId} dropped due to {dropReason}.",
+                subscription.StreamId, dropReason
             );
-            Console.ResetColor();
         }
     }
 }

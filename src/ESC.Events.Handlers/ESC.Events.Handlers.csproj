@@ -7,13 +7,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ESC.Data.Redis\ESC.Data.Redis.csproj" />
+      <ProjectReference Include="..\ESC.Data.Mongo\ESC.Data.Mongo.csproj" />
       <ProjectReference Include="..\ESC.Events\ESC.Events.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.0.23" />
-      <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
+      <PackageReference Include="JsonEnvVar" Version="1.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="appsettings.json">
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
