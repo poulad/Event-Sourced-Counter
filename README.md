@@ -42,6 +42,14 @@ curl -X GET "http://localhost:5000/api/counters/foo"
 docker start esc-eventstore esc-mongo
 ```
 
+```sh
+# create 100 counters
+for i in {1..100}
+do
+    curl -X POST --data '' "http://localhost:5000/api/counters/foo$i"
+done
+```
+
 ## Roadmap
 
 - [X] [Event Store]
@@ -54,6 +62,7 @@ docker start esc-eventstore esc-mongo
 - [ ] [CQRS] Pattern
 - [ ] [DDD] Patterns
 - [X] Counter Service
+- [X] [ULID]
 - [ ] [Identicon] Service
 - [ ] [OpenAPI] Specs Generator
 - [ ] [Swagger UI]
@@ -83,6 +92,7 @@ docker start esc-eventstore esc-mongo
 [Neo4j]: https://neo4j.com/
 [CQRS]: https://www.martinfowler.com/bliki/CQRS.html
 [DDD]: https://airbrake.io/blog/software-design/domain-driven-design
+[ULID]: https://github.com/ulid/spec
 [Identicon]: https://jdenticon.com/
 [OpenAPI]: https://swagger.io/
 [Swagger UI]: https://swagger.io/tools/swagger-ui/

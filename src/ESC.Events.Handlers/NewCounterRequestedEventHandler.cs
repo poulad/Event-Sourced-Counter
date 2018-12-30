@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using ESC.Data;
 using ESC.Data.Entities;
@@ -33,12 +32,13 @@ namespace ESC.Events.Handlers
         )
         {
             // create new counter
+            var id = Ulid.NewUlid();
             var newCounter = new Counter
             {
-                Id = Ulid.NewUlid().ToString(),
+                Id = id.ToString(),
                 Name = e.Name,
                 Count = 0,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = id.Time.UtcDateTime,
                 Version = 0,
             };
             var error = await _counterRepo.AddAsync(newCounter)

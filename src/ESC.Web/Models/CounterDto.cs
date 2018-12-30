@@ -8,6 +8,8 @@ namespace ESC.Web.Models
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
     public class CounterDto
     {
+        public string Id { get; set; }
+
         public string Name { get; set; }
 
         public long Count { get; set; }
@@ -21,6 +23,7 @@ namespace ESC.Web.Models
                 ? null
                 : new CounterDto
                 {
+                    Id = entity.Id,
                     Name = entity.Name,
                     Count = entity.Count,
                     CreatedAt = entity.CreatedAt,

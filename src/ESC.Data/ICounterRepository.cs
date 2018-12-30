@@ -31,6 +31,12 @@ namespace ESC.Data
             CancellationToken cancellationToken = default
         );
 
+        Task<(Counter[] Counters, Error Error)> GetCountersInPageAsync(
+            string afterId = null,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default
+        );
+
         Task<Error> DeleteAsync(
             string id,
             CancellationToken cancellationToken = default

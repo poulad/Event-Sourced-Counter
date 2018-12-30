@@ -96,6 +96,41 @@ namespace ESC.Data.Mongo
         }
 
         /// <inheritdoc />
+        public async Task<(Counter[] Counters, Error Error)> GetCountersInPageAsync(
+            string afterId,
+            int pageSize,
+            CancellationToken cancellationToken = default
+        )
+        {
+            (Counter[] Counters, Error Error) result;
+
+            var findTask = _collection
+                .Find(
+                    afterId is null
+                        ? FilterDefinition<Counter>.Empty
+                        : Filter.Gt("_id", afterId)
+                )
+                .Sort(
+                    Builders<Counter>.Sort.Ascending("_id")
+                )
+                .Limit(pageSize)
+                .ToListAsync(cancellationToken);
+
+            try
+            {
+                var entities = await findTask.ConfigureAwait(false);
+                result = (entities.ToArray(), null);
+            }
+            catch (Exception e)
+            {
+                // ToDo return error
+                result = (null, new Error("e.data")); // ToDo
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc />
         public async Task<Error> DeleteAsync(
             string id,
             CancellationToken cancellationToken = default

@@ -50,6 +50,15 @@ namespace ESC.Data.Redis
 //            return counter;
         }
 
+        public Task<(Counter[] Counters, Error Error)> GetCountersInPageAsync(
+            string afterId = null,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default
+        )
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<Error> DeleteAsync(
             string id,
             CancellationToken cancellationToken = default
