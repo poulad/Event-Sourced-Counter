@@ -14,6 +14,8 @@ docker run --detach --name esc-eventstore --publish 2113:2113 --publish 1113:111
 
 # run an instance of Mongo in the background
 docker run --detach --name esc-mongo --publish 27017:27017 mongo
+
+# docker rm -fv esc-eventstore esc-mongo
 ```
 
 ```sh
