@@ -65,7 +65,7 @@ done
 - [ ] [DDD] Patterns
 - [X] Counter Service
 - [X] [ULID]
-- [ ] [Identicon] Service
+- [X] [Identicon] Service
 - [ ] [OpenAPI] Specs Generator
 - [ ] [Swagger UI]
 - [ ] [DocFX] Docs Generator

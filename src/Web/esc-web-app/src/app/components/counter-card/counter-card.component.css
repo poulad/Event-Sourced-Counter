@@ -1,8 +1,7 @@
 .counter-card {
-  margin-left: 2em;
-  margin-right: 2em;
+  margin: .1em;
 }
 
-.example-header-image {
+.counter-card-header-image {
   background-size: cover;
 }

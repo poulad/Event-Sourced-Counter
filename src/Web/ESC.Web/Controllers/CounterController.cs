@@ -27,7 +27,9 @@ namespace ESC.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateNewCounter([FromRoute] string name)
+        public async Task<IActionResult> CreateNewCounter(
+            [FromRoute] string name
+        )
         {
             Result result;
 
@@ -87,7 +89,9 @@ namespace ESC.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> QueryCounter([FromRoute] string name)
+        public async Task<IActionResult> QueryCounter(
+            [FromRoute] string name
+        )
         {
             Result result;
 
@@ -107,7 +111,10 @@ namespace ESC.Web.Controllers
         }
 
         [HttpPatch]
-        public async Task<IActionResult> IncrementCounter([FromRoute] string name, [FromQuery] int count = 1)
+        public async Task<IActionResult> IncrementCounter(
+            [FromRoute] string name,
+            [FromQuery] int count = 1
+        )
         {
             Result result;
 
@@ -151,13 +158,18 @@ namespace ESC.Web.Controllers
         }
 
         [HttpPut]
-        public Task<IActionResult> SetCounterValue([FromRoute] string name, [FromBody] SetCountInputDto dto)
+        public Task<IActionResult> SetCounterValue(
+            [FromRoute] string name,
+            [FromBody] SetCountInputDto dto
+        )
         {
             throw new NotImplementedException();
         }
 
         [HttpDelete]
-        public Task<IActionResult> DeleteCounter([FromRoute] string name)
+        public Task<IActionResult> DeleteCounter(
+            [FromRoute] string name
+        )
         {
             throw new NotImplementedException();
         }

@@ -1,0 +1,26 @@
+<form (ngSubmit)="submit()">
+  <div class="form-container">
+    <mat-form-field>
+      <input matInput placeholder="New counter name" [formControl]="counterName" required>
+
+      <ng-container *ngIf="counterName.touched && counterName.invalid">
+        <mat-error *ngIf="counterName.hasError('required')">
+          Counter name is <strong>required</strong>.
+        </mat-error>
+        <mat-error *ngIf="counterName.hasError('minlength')">
+          Should be <strong>more than 2</strong> characters long.
+        </mat-error>
+        <mat-error
+          *ngIf="!counterName.hasError('required') && !counterName.hasError('minlength') && counterName.hasError('pattern')">
+          Allowed characters are alphanumeric characters, dot, underscore, and hyphen. Name must start with a letter.
+        </mat-error>
+      </ng-container>
+
+      <div>
+        <button type="reset" [disabled]="counterName.untouched" mat-raised-button (click)="counterName.reset()">Reset
+        </button>
+        <button type="submit" [disabled]="counterName.invalid" mat-raised-button color="primary">Create</button>
+      </div>
+    </mat-form-field>
+  </div>
+</form>
