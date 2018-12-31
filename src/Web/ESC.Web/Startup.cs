@@ -1,5 +1,4 @@
-﻿using ESC.Data.Mongo;
-using ESC.Web.Extensions;
+﻿using ESC.Web.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +18,7 @@ namespace ESC.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddCors();
 
             services.AddMongoDb(Configuration.GetSection("Data"));
             services.AddEventStore(Configuration.GetSection("Data"));
@@ -30,6 +30,11 @@ namespace ESC.Web
 
             app.CreateMongoDbSchema();
 
+            app.UseCors(policy => policy
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+            );
             app.UseMvc();
         }
     }

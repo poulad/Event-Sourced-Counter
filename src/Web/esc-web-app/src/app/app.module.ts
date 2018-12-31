@@ -11,9 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 import { AppRoutingModule } from './app-routing.module';
+
+import { CountersService } from './services/counters.service';
+
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { CounterCardComponent } from './components/counter-card/counter-card.component';
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -24,6 +28,7 @@ import { CounterCardComponent } from './components/counter-card/counter-card.com
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     AppRoutingModule,
 
     MatToolbarModule,
@@ -34,7 +39,9 @@ import { CounterCardComponent } from './components/counter-card/counter-card.com
     MatButtonModule,
     MatCardModule,
   ],
-  providers: [],
+  providers: [
+    CountersService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

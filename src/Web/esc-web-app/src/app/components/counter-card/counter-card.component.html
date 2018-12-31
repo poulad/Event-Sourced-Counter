@@ -1,6 +1,7 @@
 <mat-card class="counter-card">
   <mat-card-header>
-    <div mat-card-avatar class="example-header-image"></div>
+    <div *ngIf="counter.picture?.length" mat-card-avatar class="example-header-image"
+         [style.background-image]="'url(data:image/png;base64,' + counter.picture + ')'"></div>
     <mat-card-title>{{ counter.name }}</mat-card-title>
     <mat-card-subtitle>By unknown user</mat-card-subtitle>
   </mat-card-header>

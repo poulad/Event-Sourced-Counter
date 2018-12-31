@@ -14,6 +14,8 @@ namespace ESC.Web.Models
 
         public long Count { get; set; }
 
+        public string Picture { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime? LastModifiedAt { get; set; }
@@ -26,6 +28,7 @@ namespace ESC.Web.Models
                     Id = entity.Id,
                     Name = entity.Name,
                     Count = entity.Count,
+                    Picture = entity.Picture,
                     CreatedAt = entity.CreatedAt,
                     LastModifiedAt = entity.LastModifiedAt == default
                         ? null

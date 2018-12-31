@@ -1,6 +1,6 @@
 export interface Counter {
   name: string;
   count: number;
-  avatar?: string;
+  picture?: string;
   createdAt: Date;
 }
