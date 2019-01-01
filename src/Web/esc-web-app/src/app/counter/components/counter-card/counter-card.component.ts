@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Counter } from '../../models/counter';
 
 @Component({
@@ -6,13 +6,6 @@ import { Counter } from '../../models/counter';
   templateUrl: './counter-card.component.html',
   styleUrls: ['./counter-card.component.css']
 })
-export class CounterCardComponent implements OnInit {
+export class CounterCardComponent {
   @Input() counter: Counter;
-
-  constructor() {
-  }
-
-  ngOnInit() {
-  }
-
 }

@@ -30,7 +30,7 @@ namespace ESC.Web.Controllers
 
             if (after is null ^ Ulid.TryParse(after, out _))
             {
-                if (0 < size)
+                if (1 <= size && size <= 25)
                 {
                     var countersResult = await _counterRepo.GetCountersInPageAsync(
                         after, size, HttpContext.RequestAborted
@@ -50,7 +50,10 @@ namespace ESC.Web.Controllers
                 }
                 else
                 {
-                    result = new Result(false, "Invalid value provided for the \"size\" parameter.");
+                    result = new Result(
+                        false,
+                        "The value for the \"size\" parameter should be between 1 to 25."
+                    );
                 }
             }
             else

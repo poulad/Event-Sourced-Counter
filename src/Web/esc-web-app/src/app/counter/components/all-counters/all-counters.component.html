@@ -1,0 +1,7 @@
+<div fxlayout="column">
+  <app-new-counter></app-new-counter>
+
+  <ng-container *ngIf="state.startsWith('load')">
+    <app-counter-card [counter]="c" *ngFor="let c of counters"></app-counter-card>
+  </ng-container>
+</div>
