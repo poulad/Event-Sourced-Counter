@@ -52,6 +52,10 @@ do
 done
 ```
 
+```sh
+docker run --detach --name esc-couchdb --publish 5984:5984 -d couchdb
+```
+
 ## Roadmap
 
 - [X] [Event Store]
@@ -62,7 +66,7 @@ done
 - [ ] Events Replay Tests
 - [ ] Event Store Snapshots
 - [ ] [CQRS] Pattern
-- [ ] [DDD] Patterns
+- [ ] [DDD] Pattern
 - [X] Counter Service
 - [X] [ULID]
 - [X] [Identicon] Service
@@ -71,8 +75,8 @@ done
 - [ ] [DocFX] Docs Generator
 - [ ] Code Coverage Report
 - [ ] Code Quality Report
-- [ ] [Angular] SPA
-- [ ] [Angular Material]
+- [X] [Angular] SPA
+- [X] [Angular Material]
 - [ ] [Docker]ized Services
 - [ ] [Travis-CI] multi-staged builds
 - [ ] Event Store cluster with 3 nodes
