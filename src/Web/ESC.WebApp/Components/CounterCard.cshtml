@@ -1,0 +1,36 @@
+@using System.Net
+@using ESC.WebApp.Models
+
+<div class="card">
+    @if (Counter?.picture != null)
+    {
+        <a href=@CounterRoute>
+            <img src=@($"data:image/png;base64,{Counter.picture}") width="100" height="100" class="card-img-top img-thumbnail" alt="picture">
+        </a>
+    }
+    else if (Counter is null)
+    {
+        <img src="" width="100" height="100" class="card-img-top" alt="Picture">
+    }
+    <div class="card-body p-2">
+        <h5 class="card-title">
+            <a href=@CounterRoute>@Counter?.name</a>
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted">@Counter?.id</h6>
+        <p class="card-text">
+            Current count is: @Counter?.count
+        </p>
+        <p class="card-text">
+            <small class="text-muted">Created at @Counter?.createdAt</small>
+        </p>
+        <a href="#" class="card-link">Card link</a>
+    </div>
+</div>
+
+@functions {
+
+    [Parameter]
+    Counter Counter { get; set; }
+
+    string CounterRoute => $"/counters/{WebUtility.UrlEncode(Counter?.name)}";
+}

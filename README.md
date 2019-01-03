@@ -26,17 +26,17 @@ dotnet run
 
 ```sh
 # start a new counter "foo"
-curl -X POST --data '' "http://localhost:5000/api/counters/foo"
+curl -X POST --data '' "http://localhost:5005/api/counters/foo"
 
 # get value for counter "foo"
-curl -X GET "http://localhost:5000/api/counters/foo"
+curl -X GET "http://localhost:5005/api/counters/foo"
 
 # increment it by 1 and then by 3
-curl -X PATCH "http://localhost:5000/api/counters/foo"
-curl -X PATCH "http://localhost:5000/api/counters/foo?count=3"
+curl -X PATCH "http://localhost:5005/api/counters/foo"
+curl -X PATCH "http://localhost:5005/api/counters/foo?count=3"
 
 # get value for counter "foo" again
-curl -X GET "http://localhost:5000/api/counters/foo"
+curl -X GET "http://localhost:5005/api/counters/foo"
 ```
 
 ```sh
@@ -48,7 +48,7 @@ docker start esc-eventstore esc-mongo
 # create 100 counters
 for i in {1..100}
 do
-    curl -X POST --data '' "http://localhost:5000/api/counters/foo$i"
+    curl -X POST --data '' "http://localhost:5005/api/counters/foo$i"
 done
 ```
 
@@ -88,7 +88,7 @@ docker run --detach --name esc-couchdb --publish 5984:5984 -d couchdb
 - [ ] Try [Push Notifications] in the SPA
 - [ ] Try [Web Socket] in the SPA
 - [ ] Try [ReactiveX] for Event Handlers
-- [ ] Try [Blazor]
+- [X] Try [Blazor]
 
 [Event Sourcing]: https://www.erikheemskerk.nl/event-sourcing-awesome-powerful-different/
 [Event Store]: https://eventstore.org/
